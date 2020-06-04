@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>echarts + ajax </title>
+    <script src="js/echarts.min.js"></script>
+    <!-- 先引入jquery -->
+    <script src="js/jquery.js"></script>
+</head>
+<body>
+<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+<div id="main" style="width: 600px;height:400px;"></div>
+
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+
+    myChart.setOption({
+        title: {
+            text: '合肥市各区人口数统计',
+            left:'left'
+        },
+        legend:{
+            data:['人口数']
+        },
+        xAxis:{
+            data:[]
+        },
+        yAxis:{},
+        series : [{
+            name:'人口数',
+            type:'bar',
+            data:[]
+        }
+        ]
+    });
+
+    myChart.showLoading({text: '数据正在加载中...'  });
+    //这里设置定时器模拟数据延时加载
+    setTimeout(function(){
+        $.ajax({
+            url:"/getAddressData",
+            dataType:"json",
+            success:function(jsonData){
+                myChart.setOption({
+                    xAxis: {
+                        data: jsonData.xAxisCategory
+                    },
+                    series: [{
+                        // 根据名字对应到相应的系列
+                        name: '人口数',
+                        data: jsonData.datas
+                    }]
+                });
+                // 设置加载等待隐藏
+                myChart.hideLoading();
+            }
+        });
+    },500);
+</script>
+</body>
+</html>
